@@ -469,6 +469,38 @@ button {
   color: var(--text);
 }
 
+/* ── Submit states ── */
+.submit-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.btn-submit {
+  width: 100%; justify-content: center; padding: 13px 20px;
+  font-size: 14px; font-weight: 700; border-radius: var(--radius-md);
+  background: var(--og-blue); color: var(--white); letter-spacing: .02em;
+}
+.btn-submit:hover { background: var(--og-blue-dark); box-shadow: var(--shadow-md); }
+.btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+.submit-note {
+  font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 4px;
+}
+
+/* ── Success page ── */
+.success-wrap {
+  text-align: center; padding: 40px 20px;
+}
+.success-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--og-blue-light); border: 2px solid var(--og-blue);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px; font-size: 28px;
+}
+.success-wrap h1 { color: var(--og-charcoal); margin-bottom: 8px; }
+.success-wrap p { color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+.success-meta {
+  background: var(--og-blue-light); border: 1px solid var(--og-blue-mid);
+  border-radius: var(--radius-md); padding: 14px 18px; margin: 20px 0;
+  font-size: 13px; text-align: left;
+}
+.success-meta strong { color: var(--og-charcoal); display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--og-blue); }
+
 /* ── Footer ── */
 .og-footer {
   text-align: center;
@@ -949,12 +981,35 @@ button {
 
   <div class="card" id="sum-body" style="padding:.75rem 1.25rem"></div>
 
-  <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
-    <button onclick="goTo('p6','p5',false)" style="align-self:flex-start;background:var(--white);color:var(--og-charcoal);border:1px solid var(--border)">← Edit responses</button>
-    <button class="btn-large btn-primary" onclick="doExport()">Copy full report to clipboard</button>
-    <button class="btn-large btn-outline" onclick="doAnalyse()">Ask Claude to analyse & prioritise gaps ↗</button>
+  <div class="submit-actions">
+    <button onclick="goTo('p6','p5',false)" style="align-self:flex-start;background:var(--white);color:var(--og-charcoal);border:1px solid var(--border);margin-bottom:4px">← Edit responses</button>
+    <button class="btn-submit" id="submit-btn" onclick="submitToSheet()">Submit to Dashboard</button>
+    <p class="submit-note">Your responses will be saved to the Outsource Global analytics dashboard</p>
+    <button class="btn-large btn-outline" onclick="doExport()" style="margin-top:4px">Copy report to clipboard</button>
+    <button class="btn-large btn-outline" onclick="doAnalyse()">Ask Claude to analyse ↗</button>
   </div>
 
+  <div class="og-footer">
+    Outsource Global · Confidential ·
+    <a href="https://www.outsourceglobal.com" target="_blank">outsourceglobal.com</a>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     PAGE 7: SUCCESS
+════════════════════════════════════ -->
+<div id="p7" class="page">
+  <div class="success-wrap">
+    <div class="success-icon">✓</div>
+    <h1>Submission received!</h1>
+    <p>Thank you for completing the Outsource Global Automation Gap Analysis.<br>Your responses have been recorded and will inform our Q2 2026 automation roadmap.</p>
+    <div class="success-meta" id="success-meta"></div>
+    <p style="font-size:12px;color:var(--text-muted)">The IT / Automation team will review your submission and follow up with next steps.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+    <button class="btn-large btn-primary" onclick="doExport()">Download a copy of your report</button>
+    <button class="btn-large btn-outline" onclick="startNew()">Submit another department</button>
+  </div>
   <div class="og-footer">
     Outsource Global · Confidential ·
     <a href="https://www.outsourceglobal.com" target="_blank">outsourceglobal.com</a>
@@ -965,6 +1020,9 @@ button {
 
 
 <script>
+// ── Paste your Google Apps Script Web App URL here after deploying ──
+const SHEET_ENDPOINT = 'YOUR_APPS_SCRIPT_URL_HERE';
+
 const DEPT_PROCESSES = {
   'HR':['Recruitment & job posting','CV screening & shortlisting','Interview scheduling','Offer letters & contracts','Staff onboarding','Payroll processing','Leave & absence management','Performance appraisals','Training & development tracking','Offboarding / exit management','HR compliance & policy updates','Staff records management','Disciplinary process tracking'],
   'Operations':['Client onboarding','SLA monitoring & reporting','Resource allocation & scheduling','Vendor & supplier management','Project tracking & updates','Process documentation','Internal audits','KPI / dashboard reporting','Issue escalation management','Workflow approvals','Contract renewals tracking','Capacity planning'],
@@ -1263,6 +1321,76 @@ Additional comments: ${state.comments}
 
 ${'─'.repeat(50)}
 Generated via Outsource Global Automation Gap Analysis Tool · Q2 2026`;
+}
+
+function submitToSheet() {
+  if (!SHEET_ENDPOINT || SHEET_ENDPOINT === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    alert('Dashboard endpoint not configured yet. Please paste your Google Apps Script URL into the SHEET_ENDPOINT variable in the form code.');
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  const payload = {
+    timestamp: new Date().toISOString(),
+    fname: state.fname, lname: state.lname, title: state.title,
+    email: state.email, dept: state.dept, teamSize: state.teamSize,
+    date: state.date, reportsTo: state.reportsTo,
+    processes: state.processes,
+    top1: state.top1, top2: state.top2, top3: state.top3,
+    tools: [state.tools, state.otherTools].filter(Boolean).join(', '),
+    autoLevel: state.autoLevel, hrsManual: state.hrsManual,
+    dataEntryPct: state.dataEntryPct, procTable: state.procTable,
+    handoffs: state.handoffs,
+    errorCauses: [state.errorCauses, state.otherErrors].filter(Boolean).join(', '),
+    risk: state.risk, pastErrors: state.pastErrors,
+    reportingManual: state.reportingManual, realtimeVis: state.realtimeVis,
+    qw1: state.qw1, qw1why: state.qw1why,
+    qw2: state.qw2, qw2why: state.qw2why,
+    qw3: state.qw3, qw3why: state.qw3why,
+    longterm: state.longterm, success: state.success, freedTime: state.freedTime,
+    readiness: state.readiness, digLiteracy: state.digLiteracy,
+    blockers: state.blockers,
+    supportNeeds: [state.supportNeeds, state.supportDetail].filter(Boolean).join(', '),
+    timeline: state.timeline, comments: state.comments
+  };
+
+  fetch(SHEET_ENDPOINT, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    document.getElementById('success-meta').innerHTML = `
+      <strong>Submitted by</strong>${state.fname} ${state.lname} · ${state.title}
+      <strong style="margin-top:8px">Department</strong>${state.dept} &nbsp;·&nbsp; ${state.teamSize} members
+      <strong style="margin-top:8px">Submitted on</strong>${new Date().toLocaleString('en-GB')}`;
+    goTo('p6', 'p7', false);
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.textContent = 'Submit to Dashboard';
+    alert('Submission failed — please check your internet connection and try again.');
+  });
+}
+
+function startNew() {
+  // Reset all inputs
+  document.querySelectorAll('input[type=text], input[type=number], input[type=email], textarea').forEach(el => el.value = '');
+  document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+  document.querySelectorAll('.pill.on, .proc-item.on').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('.rb').forEach(el => el.className = 'rb');
+  document.getElementById('proc-grid').innerHTML = '';
+  document.getElementById('custom-procs-list').innerHTML = '';
+  document.getElementById('submit-btn').disabled = false;
+  document.getElementById('submit-btn').textContent = 'Submit to Dashboard';
+  Object.keys(state).forEach(k => delete state[k]);
+  Object.keys(ratings).forEach(k => delete ratings[k]);
+  customProcs.length = 0;
+  goTo('p7', 'p0', false);
 }
 
 function doExport() {
