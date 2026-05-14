@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outsource Global — Automation Gap Analysis</title>
+<style>
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --og-blue:       #29ABE2;
+  --og-blue-dark:  #1A8EBF;
+  --og-blue-light: #E8F6FD;
+  --og-blue-mid:   #B3E2F5;
+  --og-charcoal:   #4A4A4A;
+  --og-charcoal-lt:#6B6B6B;
+  --white:         #FFFFFF;
+  --bg:            #F4F6F8;
+  --card-bg:       #FFFFFF;
+  --border:        #DDE3E8;
+  --border-focus:  #29ABE2;
+  --text:          #2C2C2C;
+  --text-muted:    #6B6B6B;
+  --radius-sm:     6px;
+  --radius-md:     10px;
+  --radius-lg:     14px;
+  --shadow:        0 1px 4px rgba(0,0,0,.08);
+  --shadow-md:     0 4px 16px rgba(41,171,226,.12);
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.og-header {
+  background: var(--white);
+  border-bottom: 2px solid var(--og-blue);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(41,171,226,.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.og-header img { height: 44px; }
+.og-header-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--border);
+}
+.og-header-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--og-charcoal);
+  letter-spacing: .02em;
+}
+.og-header-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* ── Layout ── */
+.outer {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 28px 16px 60px;
+}
+
+/* ── Pages ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── Progress ── */
+.prog-wrap { margin-bottom: 20px; }
+.prog-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.prog {
+  height: 5px;
+  background: var(--og-blue-mid);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  background: var(--og-blue);
+  border-radius: 99px;
+  transition: width .4s ease;
+}
+
+/* ── Page heading ── */
+.page-head { margin-bottom: 20px; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 99px;
+  background: var(--og-blue-light);
+  color: var(--og-blue);
+  border: 1px solid var(--og-blue-mid);
+  margin-bottom: 10px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--og-charcoal);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.sub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ── Intro page ── */
+.intro-hero {
+  background: linear-gradient(135deg, var(--og-blue) 0%, var(--og-blue-dark) 100%);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  color: white;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.intro-hero::after {
+  content: '';
+  position: absolute;
+  right: -20px;
+  top: -20px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+}
+.intro-hero::before {
+  content: '';
+  position: absolute;
+  right: 30px;
+  bottom: -30px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.05);
+}
+.intro-hero h1 { color: white; font-size: 24px; }
+.intro-hero .sub { color: rgba(255,255,255,.85); margin-top: 6px; }
+.intro-tag {
+  display: inline-block;
+  background: rgba(255,255,255,.2);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 99px;
+  margin-bottom: 12px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  transition: border-color .2s;
+}
+.card:focus-within { border-color: var(--og-blue); }
+
+/* ── Section divider ── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 12px;
+  color: var(--og-blue);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--og-blue-mid);
+}
+
+/* ── Labels & inputs ── */
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--og-charcoal);
+  margin-bottom: 5px;
+}
+.hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+input[type=text],
+input[type=number],
+input[type=email],
+select,
+textarea {
+  width: 100%;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+input[type=text]:focus,
+input[type=number]:focus,
+input[type=email]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--og-blue);
+  box-shadow: 0 0 0 3px rgba(41,171,226,.15);
+}
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234A4A4A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+textarea { min-height: 68px; resize: vertical; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ── Process grid ── */
+.process-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.proc-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .15s;
+  font-size: 12.5px;
+  color: var(--text);
+  background: var(--white);
+}
+.proc-item:hover { background: var(--og-blue-light); border-color: var(--og-blue-mid); }
+.proc-item.on {
+  background: var(--og-blue-light);
+  color: var(--og-blue-dark);
+  border-color: var(--og-blue);
+  font-weight: 600;
+}
+.proc-item input[type=checkbox] {
+  width: 15px; height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: var(--og-blue);
+}
+.add-proc { display: flex; gap: 8px; margin-top: 8px; }
+.add-proc input { flex: 1; }
+
+/* ── Custom tags ── */
+.custom-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--og-blue-light);
+  border: 1px solid var(--og-blue-mid);
+  border-radius: 99px;
+  font-size: 12px;
+  color: var(--og-blue-dark);
+  margin: 3px;
+}
+.custom-tag button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--og-blue);
+  font-size: 15px;
+  line-height: 1;
+  padding: 0;
+}
+
+/* ── Rating buttons ── */
+.rating-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.rb {
+  flex: 1;
+  min-width: 56px;
+  padding: 9px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--white);
+  color: var(--text-muted);
+  transition: all .15s;
+  text-align: center;
+  line-height: 1.35;
+  font-family: inherit;
+}
+.rb:hover { background: var(--og-blue-light); border-color: var(--og-blue-mid); color: var(--og-blue); }
+.rb.sel-1, .rb.sel-2 { background: #FFECEC; color: #C0392B; border-color: #F0A0A0; }
+.rb.sel-3 { background: #FFF4DE; color: #9A6500; border-color: #FAC775; }
+.rb.sel-4, .rb.sel-5 { background: var(--og-blue-light); color: var(--og-blue-dark); border-color: var(--og-blue); }
+
+/* ── Pill options ── */
+.pill-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.pill {
+  padding: 5px 13px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  cursor: pointer;
+  background: var(--white);
+  color: var(--text-muted);
+  transition: all .15s;
+  font-family: inherit;
+}
+.pill:hover { background: var(--og-blue-light); border-color: var(--og-blue-mid); color: var(--og-blue); }
+.pill.on {
+  background: var(--og-blue);
+  color: var(--white);
+  border-color: var(--og-blue-dark);
+  font-weight: 600;
+}
+
+/* ── Impact table ── */
+.impact-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.impact-row:last-child { border-bottom: none; }
+.impact-row.header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--og-blue);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.impact-row select { font-size: 12px; }
+
+/* ── Navigation ── */
+.nav {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.step-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ── Buttons ── */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 20px;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-primary {
+  background: var(--og-blue);
+  color: var(--white);
+}
+.btn-primary:hover { background: var(--og-blue-dark); box-shadow: var(--shadow-md); }
+.btn-secondary {
+  background: var(--white);
+  color: var(--og-charcoal);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { background: var(--bg); }
+.btn-large {
+  width: 100%;
+  justify-content: center;
+  padding: 12px 20px;
+  font-size: 14px;
+  border-radius: var(--radius-md);
+  margin-top: 6px;
+}
+.btn-outline {
+  background: var(--white);
+  color: var(--og-blue);
+  border: 1.5px solid var(--og-blue);
+}
+.btn-outline:hover { background: var(--og-blue-light); }
+
+/* nav button defaults */
+.nav button:first-child { background: var(--white); color: var(--og-charcoal); border: 1px solid var(--border); }
+.nav button:first-child:hover { background: var(--bg); }
+.nav button:last-child { background: var(--og-blue); color: var(--white); }
+.nav button:last-child:hover { background: var(--og-blue-dark); box-shadow: var(--shadow-md); }
+.nav button:only-child { margin-left: auto; background: var(--og-blue); color: var(--white); }
+
+/* ── Summary page ── */
+.sum-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.sum-row:last-child { border-bottom: none; }
+.sum-lbl {
+  font-weight: 700;
+  color: var(--og-blue);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  padding-top: 1px;
+}
+.sum-val {
+  white-space: pre-wrap;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+/* ── Footer ── */
+.og-footer {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.og-footer a { color: var(--og-blue); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 520px) {
+  .row2, .process-grid { grid-template-columns: 1fr; }
+  .sum-row { grid-template-columns: 1fr; gap: 3px; }
+  .og-header img { height: 34px; }
+  h1 { font-size: 19px; }
+  .intro-hero h1 { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Header ── -->
+<header class="og-header">
+  <img src="https://outsourceglobal.com/logo.png" alt="Outsource Global logo">
+  <div class="og-header-divider"></div>
+  <div>
+    <div class="og-header-title">Automation Gap Analysis</div>
+    <div class="og-header-sub">HOD Self-Assessment · Q2 2026</div>
+  </div>
+</header>
+
+<div class="outer">
+
+<!-- ════════════════════════════════════
+     PAGE 0: INTRO
+════════════════════════════════════ -->
+<div id="p0" class="page active">
+
+  <div class="intro-hero">
+    <div class="intro-tag">Q2 2026 Initiative</div>
+    <h1>Automation Gap Analysis</h1>
+    <p class="sub">Helping Outsource Global identify where smart automation can save time, reduce errors, and free up capacity across every department.</p>
+  </div>
+
+  <div class="card">
+    <div class="section-divider">About you</div>
+    <div class="row2" style="margin-bottom:12px">
+      <div><label>First name</label><input type="text" id="fname" placeholder="e.g. Adaeze"></div>
+      <div><label>Last name</label><input type="text" id="lname" placeholder="e.g. Okonkwo"></div>
+    </div>
+    <div class="row2" style="margin-bottom:12px">
+      <div><label>Job title</label><input type="text" id="jobtitle" placeholder="Head of…"></div>
+      <div><label>Email</label><input type="email" id="email" placeholder="you@outsourceglobal.com"></div>
+    </div>
+    <div class="section-divider">Your department</div>
+    <div class="row2" style="margin-bottom:12px">
+      <div>
+        <label>Department</label>
+        <select id="dept-select" onchange="loadProcesses()">
+          <option value="">— select department —</option>
+          <option>HR</option>
+          <option>Operations</option>
+          <option>IT</option>
+          <option>DATA</option>
+          <option>TQA</option>
+          <option>IEC</option>
+          <option>ACCOUNTS / PRC</option>
+          <option>FACILITY</option>
+          <option>BD</option>
+        </select>
+      </div>
+      <div><label>No. of team members</label><input type="number" id="team-size" min="1" placeholder="e.g. 8"></div>
+    </div>
+    <div class="row2">
+      <div><label>Date of submission</label><input type="text" id="sub-date" placeholder="dd/mm/yyyy"></div>
+      <div><label>Reporting line</label><input type="text" id="reporting-to" placeholder="Reports to…"></div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <span></span>
+    <button onclick="startForm()">Begin assessment →</button>
+  </div>
+
+  <div class="og-footer">
+    Confidential · Outsource Global Internal Use Only ·
+    <a href="https://www.outsourceglobal.com" target="_blank">outsourceglobal.com</a>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     PAGE 1: PROCESS INVENTORY
+════════════════════════════════════ -->
+<div id="p1" class="page">
+  <div class="prog-wrap">
+    <div class="prog-label"><span>Process Inventory</span><span>Step 2 of 6</span></div>
+    <div class="prog"><div class="prog-fill" style="width:16%"></div></div>
+  </div>
+  <div class="page-head">
+    <div class="badge" id="b1">Department</div>
+    <h1>Process inventory</h1>
+    <p class="sub">Select all processes your department runs. Add any not listed below.</p>
+  </div>
+
+  <div class="card">
+    <label>Core processes in your department</label>
+    <div class="hint">Pre-loaded based on your department — tick all that apply, then add any others</div>
+    <div class="process-grid" id="proc-grid"></div>
+    <div style="margin-bottom:6px;font-size:12px;color:var(--text-muted)">Add a process not listed:</div>
+    <div class="add-proc">
+      <input type="text" id="custom-proc-input" placeholder="Type a process and press Add…">
+      <button onclick="addCustomProc()" style="background:var(--og-blue);color:white;padding:8px 14px">+ Add</button>
+    </div>
+    <div id="custom-procs-list" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <label>Which 3 processes consume the most time each week?</label>
+    <div class="hint">Rank from most time-consuming (#1) to least (#3)</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:7px;align-items:center">
+      <span style="font-size:12px;font-weight:700;color:var(--og-blue)">#1</span>
+      <input type="text" id="top1" placeholder="Most time-consuming process">
+      <span style="font-size:12px;font-weight:700;color:var(--og-blue)">#2</span>
+      <input type="text" id="top2" placeholder="Second most time-consuming">
+      <span style="font-size:12px;font-weight:700;color:var(--og-blue)">#3</span>
+      <input type="text" id="top3" placeholder="Third most time-consuming">
+    </div>
+  </div>
+
+  <div class="card">
+    <label>What tools / systems does your team currently use?</label>
+    <div class="pill-row" id="tools-pills">
+      <span class="pill" onclick="togglePill(this)">Excel / Google Sheets</span>
+      <span class="pill" onclick="togglePill(this)">WhatsApp / Telegram</span>
+      <span class="pill" onclick="togglePill(this)">Email only</span>
+      <span class="pill" onclick="togglePill(this)">Google Drive / SharePoint</span>
+      <span class="pill" onclick="togglePill(this)">Slack / Teams</span>
+      <span class="pill" onclick="togglePill(this)">Trello / Asana / Monday</span>
+      <span class="pill" onclick="togglePill(this)">QuickBooks / Sage</span>
+      <span class="pill" onclick="togglePill(this)">HR software (BambooHR etc.)</span>
+      <span class="pill" onclick="togglePill(this)">Custom in-house system</span>
+    </div>
+    <textarea id="other-tools" placeholder="Any other tools or systems not listed above…" style="margin-top:10px;min-height:48px"></textarea>
+  </div>
+
+  <div class="nav">
+    <button onclick="goTo('p1','p0',false)">← Back</button>
+    <span class="step-info">Step 2 of 6</span>
+    <button onclick="goTo('p1','p2',true)">Next →</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     PAGE 2: CURRENT STATE
+════════════════════════════════════ -->
+<div id="p2" class="page">
+  <div class="prog-wrap">
+    <div class="prog-label"><span>Current Automation State</span><span>Step 3 of 6</span></div>
+    <div class="prog"><div class="prog-fill" style="width:33%"></div></div>
+  </div>
+  <div class="page-head">
+    <div class="badge" id="b2">Department</div>
+    <h1>Current automation state</h1>
+    <p class="sub">Help us understand where your department is today</p>
+  </div>
+
+  <div class="card">
+    <label>Overall automation level today</label>
+    <div class="hint">1 = entirely manual &nbsp;·&nbsp; 5 = mostly automated</div>
+    <div class="rating-row" id="auto-level">
+      <button class="rb" onclick="rate('auto-level',this,1)">1<br><small>All manual</small></button>
+      <button class="rb" onclick="rate('auto-level',this,2)">2<br><small>Mostly manual</small></button>
+      <button class="rb" onclick="rate('auto-level',this,3)">3<br><small>Mixed</small></button>
+      <button class="rb" onclick="rate('auto-level',this,4)">4<br><small>Mostly auto</small></button>
+      <button class="rb" onclick="rate('auto-level',this,5)">5<br><small>Fully auto</small></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>For each key process, how much is currently manual vs automated?</label>
+    <div class="hint">Estimate the % that is manual today and how often the process runs</div>
+    <div id="manual-pct-rows">
+      <div class="impact-row header">
+        <span>Process</span>
+        <span style="text-align:center">% Manual</span>
+        <span style="text-align:center">Frequency</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Which processes involve the most human handoffs or approvals?</label>
+    <textarea id="handoffs" placeholder="e.g. Leave approvals pass through 3 people; invoices need 2 signatories…"></textarea>
+  </div>
+
+  <div class="card">
+    <label>Approximately how many hours per week does your team spend on purely manual / repetitive tasks?</label>
+    <select id="hrs-manual">
+      <option value="">— select —</option>
+      <option>Less than 5 hours/week</option>
+      <option>5–10 hours/week</option>
+      <option>10–20 hours/week</option>
+      <option>20–30 hours/week</option>
+      <option>More than 30 hours/week</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <label>What percentage of your team's time is spent on data entry or record-keeping?</label>
+    <select id="data-entry-pct">
+      <option value="">— select —</option>
+      <option>Less than 10%</option>
+      <option>10–25%</option>
+      <option>25–40%</option>
+      <option>40–60%</option>
+      <option>More than 60%</option>
+    </select>
+  </div>
+
+  <div class="nav">
+    <button onclick="goTo('p2','p1',false)">← Back</button>
+    <span class="step-info">Step 3 of 6</span>
+    <button onclick="goTo('p2','p3',true)">Next →</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     PAGE 3: GAP ANALYSIS
+════════════════════════════════════ -->
+<div id="p3" class="page">
+  <div class="prog-wrap">
+    <div class="prog-label"><span>Gap Analysis</span><span>Step 4 of 6</span></div>
+    <div class="prog"><div class="prog-fill" style="width:50%"></div></div>
+  </div>
+  <div class="page-head">
+    <div class="badge" id="b3">Department</div>
+    <h1>Gap analysis</h1>
+    <p class="sub">Where are the real pain points?</p>
+  </div>
+
+  <div class="card">
+    <label>What are the main causes of errors or delays in your department?</label>
+    <div class="hint">Select all that apply</div>
+    <div class="pill-row" id="error-causes">
+      <span class="pill" onclick="togglePill(this)">Manual data entry errors</span>
+      <span class="pill" onclick="togglePill(this)">No system integration</span>
+      <span class="pill" onclick="togglePill(this)">Approval bottlenecks</span>
+      <span class="pill" onclick="togglePill(this)">Duplicate work</span>
+      <span class="pill" onclick="togglePill(this)">Poor reporting visibility</span>
+      <span class="pill" onclick="togglePill(this)">Communication gaps</span>
+      <span class="pill" onclick="togglePill(this)">Document version control</span>
+      <span class="pill" onclick="togglePill(this)">Compliance tracking</span>
+      <span class="pill" onclick="togglePill(this)">Lost or delayed emails</span>
+      <span class="pill" onclick="togglePill(this)">No real-time tracking</span>
+      <span class="pill" onclick="togglePill(this)">Data stored in silos</span>
+      <span class="pill" onclick="togglePill(this)">Manual calculations</span>
+    </div>
+    <textarea id="other-errors" placeholder="Other causes…" style="margin-top:10px;min-height:40px"></textarea>
+  </div>
+
+  <div class="card">
+    <label>What is the biggest operational risk if these gaps are not addressed?</label>
+    <textarea id="risk" placeholder="e.g. Compliance failure, client churn, revenue leakage, staff burnout…"></textarea>
+  </div>
+
+  <div class="card">
+    <label>Are there any processes where errors have caused significant issues in the past 6 months?</label>
+    <textarea id="past-errors" placeholder="Describe the incident and its impact briefly…"></textarea>
+  </div>
+
+  <div class="card">
+    <label>How much of your reporting is currently manual?</label>
+    <select id="reporting-manual">
+      <option value="">— select —</option>
+      <option>All of it — we compile everything manually</option>
+      <option>Most of it — a few auto dashboards</option>
+      <option>About half manual, half automated</option>
+      <option>Mostly automated — minor manual adjustments</option>
+      <option>Fully automated</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <label>Does your team currently have real-time visibility into key metrics?</label>
+    <select id="realtime-vis">
+      <option value="">— select —</option>
+      <option>No — we find out after the fact</option>
+      <option>Partial — some metrics tracked live, others not</option>
+      <option>Yes — most metrics are tracked in real time</option>
+    </select>
+  </div>
+
+  <div class="nav">
+    <button onclick="goTo('p3','p2',false)">← Back</button>
+    <span class="step-info">Step 4 of 6</span>
+    <button onclick="goTo('p3','p4',true)">Next →</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     PAGE 4: PRIORITIES
+════════════════════════════════════ -->
+<div id="p4" class="page">
+  <div class="prog-wrap">
+    <div class="prog-label"><span>Automation Priorities</span><span>Step 5 of 6</span></div>
+    <div class="prog"><div class="prog-fill" style="width:67%"></div></div>
+  </div>
+  <div class="page-head">
+    <div class="badge" id="b4">Department</div>
+    <h1>Automation priorities</h1>
+    <p class="sub">What do you want automated, and in what order?</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--og-blue)">
+    <label>Process you want automated <em>most urgently</em> — Quick Win #1</label>
+    <input type="text" id="qw1" placeholder="Process name" style="margin-bottom:8px">
+    <textarea id="qw1-why" placeholder="Why is this the most urgent? What's the expected benefit?" style="min-height:56px"></textarea>
+  </div>
+
+  <div class="card">
+    <label>2nd priority automation</label>
+    <input type="text" id="qw2" placeholder="Process name" style="margin-bottom:8px">
+    <textarea id="qw2-why" placeholder="Expected benefit…" style="min-height:48px"></textarea>
+  </div>
+
+  <div class="card">
+    <label>3rd priority automation</label>
+    <input type="text" id="qw3" placeholder="Process name" style="margin-bottom:8px">
+    <textarea id="qw3-why" placeholder="Expected benefit…" style="min-height:48px"></textarea>
+  </div>
+
+  <div class="card">
+    <label>Longer-term automation goals (6–12 months)</label>
+    <textarea id="longterm" placeholder="Processes or capabilities you want fully automated in the next year…"></textarea>
+  </div>
+
+  <div class="card">
+    <label>What does successful automation look like for your department?</label>
+    <div class="hint">Be specific — time saved, errors eliminated, reports auto-generated, headcount reallocated…</div>
+    <textarea id="success" placeholder="e.g. 10 hrs/week saved on payroll, zero manual invoice entry, daily KPI dashboard auto-sent to MD…"></textarea>
+  </div>
+
+  <div class="card">
+    <label>How would you use the time freed up by automation?</label>
+    <div class="pill-row" id="freed-time">
+      <span class="pill" onclick="togglePill(this)">Higher-value client work</span>
+      <span class="pill" onclick="togglePill(this)">Strategy & planning</span>
+      <span class="pill" onclick="togglePill(this)">Team development</span>
+      <span class="pill" onclick="togglePill(this)">Reduce overtime</span>
+      <span class="pill" onclick="togglePill(this)">Onboard more clients</span>
+      <span class="pill" onclick="togglePill(this)">Improve quality / audits</span>
+      <span class="pill" onclick="togglePill(this)">Handle higher volume</span>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button onclick="goTo('p4','p3',false)">← Back</button>
+    <span class="step-info">Step 5 of 6</span>
+    <button onclick="goTo('p4','p5',true)">Next →</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     PAGE 5: READINESS & CONSTRAINTS
+════════════════════════════════════ -->
+<div id="p5" class="page">
+  <div class="prog-wrap">
+    <div class="prog-label"><span>Readiness & Constraints</span><span>Step 6 of 6</span></div>
+    <div class="prog"><div class="prog-fill" style="width:83%"></div></div>
+  </div>
+  <div class="page-head">
+    <div class="badge" id="b5">Department</div>
+    <h1>Readiness & constraints</h1>
+    <p class="sub">Help us plan the right implementation approach</p>
+  </div>
+
+  <div class="card">
+    <label>How ready is your team to adopt automation?</label>
+    <div class="hint">1 = resistant / unprepared &nbsp;·&nbsp; 5 = eager and ready</div>
+    <div class="rating-row" id="readiness">
+      <button class="rb" onclick="rate('readiness',this,1)">1<br><small>Not ready</small></button>
+      <button class="rb" onclick="rate('readiness',this,2)">2<br><small>Hesitant</small></button>
+      <button class="rb" onclick="rate('readiness',this,3)">3<br><small>Open</small></button>
+      <button class="rb" onclick="rate('readiness',this,4)">4<br><small>Ready</small></button>
+      <button class="rb" onclick="rate('readiness',this,5)">5<br><small>Eager</small></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Digital literacy level of your team</label>
+    <div class="hint">1 = basic (uses email/WhatsApp) &nbsp;·&nbsp; 5 = confident with new software</div>
+    <div class="rating-row" id="dig-literacy">
+      <button class="rb" onclick="rate('dig-literacy',this,1)">1<br><small>Basic</small></button>
+      <button class="rb" onclick="rate('dig-literacy',this,2)">2</button>
+      <button class="rb" onclick="rate('dig-literacy',this,3)">3<br><small>Average</small></button>
+      <button class="rb" onclick="rate('dig-literacy',this,4)">4</button>
+      <button class="rb" onclick="rate('dig-literacy',this,5)">5<br><small>Confident</small></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>What blockers might slow automation in your department?</label>
+    <div class="pill-row" id="blockers">
+      <span class="pill" onclick="togglePill(this)">Budget constraints</span>
+      <span class="pill" onclick="togglePill(this)">Staff resistance</span>
+      <span class="pill" onclick="togglePill(this)">Lack of technical skills</span>
+      <span class="pill" onclick="togglePill(this)">Poor data quality</span>
+      <span class="pill" onclick="togglePill(this)">Unclear process ownership</span>
+      <span class="pill" onclick="togglePill(this)">Legacy / outdated systems</span>
+      <span class="pill" onclick="togglePill(this)">Regulatory / compliance risk</span>
+      <span class="pill" onclick="togglePill(this)">No dedicated IT support</span>
+      <span class="pill" onclick="togglePill(this)">Inconsistent processes</span>
+      <span class="pill" onclick="togglePill(this)">Too many exceptions/one-offs</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>What support do you need from IT / Group Office to proceed?</label>
+    <div class="pill-row" id="support-needs">
+      <span class="pill" onclick="togglePill(this)">System procurement</span>
+      <span class="pill" onclick="togglePill(this)">Staff training</span>
+      <span class="pill" onclick="togglePill(this)">Process re-documentation</span>
+      <span class="pill" onclick="togglePill(this)">Budget approval</span>
+      <span class="pill" onclick="togglePill(this)">Dedicated project lead</span>
+      <span class="pill" onclick="togglePill(this)">Data cleaning support</span>
+      <span class="pill" onclick="togglePill(this)">API / integration help</span>
+      <span class="pill" onclick="togglePill(this)">Change management</span>
+    </div>
+    <textarea id="support-detail" placeholder="Any specific systems, integrations, or resources you need…" style="margin-top:10px;min-height:48px"></textarea>
+  </div>
+
+  <div class="card">
+    <label>Ideal timeline to see first automation results in your department</label>
+    <select id="timeline">
+      <option value="">— select —</option>
+      <option>Within 4 weeks (immediate)</option>
+      <option>1–2 months</option>
+      <option>This quarter (Q2)</option>
+      <option>Within 6 months</option>
+      <option>End of year</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <label>Any additional comments, context, or specific requests?</label>
+    <textarea id="comments" placeholder="Anything the automation / IT team should know before starting…"></textarea>
+  </div>
+
+  <div class="nav">
+    <button onclick="goTo('p5','p4',false)">← Back</button>
+    <span class="step-info">Step 6 of 6</span>
+    <button onclick="buildSummary()">Review & submit ↗</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     PAGE 6: SUMMARY
+════════════════════════════════════ -->
+<div id="p6" class="page">
+  <div class="prog-wrap">
+    <div class="prog-label"><span>Complete</span><span>Done</span></div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+  </div>
+
+  <div class="page-head">
+    <div class="badge">Summary</div>
+    <h1>Review — <span id="sum-dept"></span></h1>
+    <p class="sub" id="sum-name"></p>
+  </div>
+
+  <div class="card" id="sum-body" style="padding:.75rem 1.25rem"></div>
+
+  <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
+    <button onclick="goTo('p6','p5',false)" style="align-self:flex-start;background:var(--white);color:var(--og-charcoal);border:1px solid var(--border)">← Edit responses</button>
+    <button class="btn-large btn-primary" onclick="doExport()">Copy full report to clipboard</button>
+    <button class="btn-large btn-outline" onclick="doAnalyse()">Ask Claude to analyse & prioritise gaps ↗</button>
+  </div>
+
+  <div class="og-footer">
+    Outsource Global · Confidential ·
+    <a href="https://www.outsourceglobal.com" target="_blank">outsourceglobal.com</a>
+  </div>
+</div>
+
+</div><!-- /outer -->
+
+
+<script>
+const DEPT_PROCESSES = {
+  'HR':['Recruitment & job posting','CV screening & shortlisting','Interview scheduling','Offer letters & contracts','Staff onboarding','Payroll processing','Leave & absence management','Performance appraisals','Training & development tracking','Offboarding / exit management','HR compliance & policy updates','Staff records management','Disciplinary process tracking'],
+  'Operations':['Client onboarding','SLA monitoring & reporting','Resource allocation & scheduling','Vendor & supplier management','Project tracking & updates','Process documentation','Internal audits','KPI / dashboard reporting','Issue escalation management','Workflow approvals','Contract renewals tracking','Capacity planning'],
+  'IT':['Helpdesk / ticket management','User access provisioning','System maintenance & patching','Network monitoring','Data backup & recovery','Software licensing management','Security audits & VAPT','Infrastructure provisioning','Incident response','IT asset tracking','System performance reporting','Change management requests'],
+  'DATA':['Data collection & entry','Data cleaning & validation','Reporting & dashboards','Database management & maintenance','Analytics & insights generation','KPI tracking & distribution','Data governance & access control','ETL / data pipeline management','Ad-hoc data requests','Data quality audits'],
+  'TQA':['Quality audits (internal)','Compliance checks','Test case creation & management','Issue / defect tracking','SLA & KPI reporting','Documentation review','Client feedback analysis','Process improvement reviews','Audit trail maintenance','Training compliance tracking','Certification management'],
+  'IEC':['Training needs analysis','Training content development','Training delivery (facilitation)','Assessment & testing','Certification & accreditation tracking','LMS administration','Compliance training records','Learning pathway management','New hire induction programs','Knowledge base maintenance'],
+  'ACCOUNTS / PRC':['Invoice processing','Payment reconciliation','Expense management & claims','Budget tracking & forecasting','Financial reporting','Procurement requests','Purchase order management','Vendor payment tracking','Tax compliance & filing','Petty cash management','Month-end close process','Audit preparation'],
+  'FACILITY':['Maintenance scheduling','Asset register & tracking','Space allocation management','Vendor & contractor management','Health & safety inspections','Utilities tracking & billing','Procurement of supplies','Cleaning & hygiene scheduling','Visitor & access management','Fault reporting & resolution','Equipment servicing tracking'],
+  'BD':['Lead generation & prospecting','CRM data entry & updates','Proposal & pitch preparation','Client meeting scheduling','Pipeline tracking','Contract drafting & management','Market research','Partnership development','Client onboarding handover','Win/loss analysis','Revenue forecasting','BD reporting & dashboards']
+};
+
+const state = {}, ratings = {}, customProcs = [];
+
+function loadProcesses() {
+  const dept = document.getElementById('dept-select').value;
+  const grid = document.getElementById('proc-grid');
+  grid.innerHTML = '';
+  if (!dept) return;
+  (DEPT_PROCESSES[dept] || []).forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'proc-item';
+    div.innerHTML = `<input type="checkbox" value="${p}"> <span>${p}</span>`;
+    div.onclick = function(e) {
+      if (e.target.tagName !== 'INPUT') div.querySelector('input').click();
+      div.classList.toggle('on', div.querySelector('input').checked);
+    };
+    grid.appendChild(div);
+  });
+  buildManualPctRows();
+}
+
+function addCustomProc() {
+  const inp = document.getElementById('custom-proc-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  customProcs.push(val);
+  const list = document.getElementById('custom-procs-list');
+  const tag = document.createElement('span');
+  tag.className = 'custom-tag';
+  tag.innerHTML = `${val} <button onclick="removeCustom(this,'${val.replace(/'/g,"\\'")}')">×</button>`;
+  list.appendChild(tag);
+  const grid = document.getElementById('proc-grid');
+  const div = document.createElement('div');
+  div.className = 'proc-item on';
+  div.innerHTML = `<input type="checkbox" checked value="${val}"> <span>${val}</span>`;
+  div.onclick = function(e) {
+    if (e.target.tagName !== 'INPUT') div.querySelector('input').click();
+    div.classList.toggle('on', div.querySelector('input').checked);
+  };
+  grid.appendChild(div);
+  inp.value = '';
+  buildManualPctRows();
+}
+
+function removeCustom(btn, val) {
+  btn.parentElement.remove();
+  const idx = customProcs.indexOf(val);
+  if (idx > -1) customProcs.splice(idx, 1);
+}
+
+function buildManualPctRows() {
+  const dept = document.getElementById('dept-select').value;
+  const procs = (DEPT_PROCESSES[dept] || []).slice(0, 6);
+  const container = document.getElementById('manual-pct-rows');
+  container.innerHTML = `<div class="impact-row header"><span>Process</span><span style="text-align:center">% Manual</span><span style="text-align:center">Frequency</span></div>`;
+  procs.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'impact-row';
+    row.innerHTML = `<span style="font-size:12px">${p}</span>
+      <select class="pct-sel" data-proc="${p}">
+        <option value="">—</option>
+        <option>100% manual</option><option>75% manual</option>
+        <option>50% manual</option><option>25% manual</option>
+        <option>Fully automated</option>
+      </select>
+      <select class="freq-sel" data-proc="${p}">
+        <option value="">—</option>
+        <option>Daily</option><option>Weekly</option>
+        <option>Monthly</option><option>Ad hoc</option>
+      </select>`;
+    container.appendChild(row);
+  });
+}
+
+function rate(id, btn, val) {
+  ratings[id] = val;
+  document.getElementById(id).querySelectorAll('.rb').forEach((b, i) => {
+    b.className = 'rb';
+    if (i < val) b.classList.add('sel-' + val);
+  });
+}
+
+function togglePill(el) { el.classList.toggle('on'); }
+
+function getSelected(id) {
+  return [...document.getElementById(id).querySelectorAll('.pill.on')]
+    .map(p => p.textContent.trim()).join(', ');
+}
+
+function getSelectedProcs() {
+  return [...document.getElementById('proc-grid').querySelectorAll('input:checked')]
+    .map(c => c.value).join(', ');
+}
+
+function getProcessTable() {
+  return [...document.getElementById('manual-pct-rows').querySelectorAll('.impact-row:not(.header)')]
+    .map(r => {
+      const p   = r.querySelector('.pct-sel')?.dataset.proc || '';
+      const pct = r.querySelector('.pct-sel')?.value || '—';
+      const frq = r.querySelector('.freq-sel')?.value || '—';
+      return `  ${p}: ${pct}, ${frq}`;
+    }).join('\n');
+}
+
+function captureData(page) {
+  if (page === 'p0') {
+    state.fname      = document.getElementById('fname').value;
+    state.lname      = document.getElementById('lname').value;
+    state.title      = document.getElementById('jobtitle').value;
+    state.email      = document.getElementById('email').value;
+    state.dept       = document.getElementById('dept-select').value;
+    state.teamSize   = document.getElementById('team-size').value;
+    state.date       = document.getElementById('sub-date').value;
+    state.reportsTo  = document.getElementById('reporting-to').value;
+  }
+  if (page === 'p1') {
+    state.processes  = getSelectedProcs();
+    state.top1       = document.getElementById('top1').value;
+    state.top2       = document.getElementById('top2').value;
+    state.top3       = document.getElementById('top3').value;
+    state.tools      = getSelected('tools-pills');
+    state.otherTools = document.getElementById('other-tools').value;
+  }
+  if (page === 'p2') {
+    state.autoLevel    = ratings['auto-level'] || '—';
+    state.procTable    = getProcessTable();
+    state.handoffs     = document.getElementById('handoffs').value;
+    state.hrsManual    = document.getElementById('hrs-manual').value;
+    state.dataEntryPct = document.getElementById('data-entry-pct').value;
+  }
+  if (page === 'p3') {
+    state.errorCauses    = getSelected('error-causes');
+    state.otherErrors    = document.getElementById('other-errors').value;
+    state.risk           = document.getElementById('risk').value;
+    state.pastErrors     = document.getElementById('past-errors').value;
+    state.reportingManual= document.getElementById('reporting-manual').value;
+    state.realtimeVis    = document.getElementById('realtime-vis').value;
+  }
+  if (page === 'p4') {
+    state.qw1      = document.getElementById('qw1').value;
+    state.qw1why   = document.getElementById('qw1-why').value;
+    state.qw2      = document.getElementById('qw2').value;
+    state.qw2why   = document.getElementById('qw2-why').value;
+    state.qw3      = document.getElementById('qw3').value;
+    state.qw3why   = document.getElementById('qw3-why').value;
+    state.longterm = document.getElementById('longterm').value;
+    state.success  = document.getElementById('success').value;
+    state.freedTime= getSelected('freed-time');
+  }
+  if (page === 'p5') {
+    state.readiness    = ratings['readiness'] || '—';
+    state.digLiteracy  = ratings['dig-literacy'] || '—';
+    state.blockers     = getSelected('blockers');
+    state.supportNeeds = getSelected('support-needs');
+    state.supportDetail= document.getElementById('support-detail').value;
+    state.timeline     = document.getElementById('timeline').value;
+    state.comments     = document.getElementById('comments').value;
+  }
+}
+
+function syncBadges() {
+  const dept = document.getElementById('dept-select').value || 'Department';
+  ['b1','b2','b3','b4','b5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = dept;
+  });
+}
+
+function goTo(from, to, save) {
+  if (save) captureData(from);
+  document.getElementById(from).classList.remove('active');
+  document.getElementById(to).classList.add('active');
+  syncBadges();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startForm() {
+  const name = document.getElementById('fname').value.trim();
+  const dept = document.getElementById('dept-select').value;
+  if (!name || !dept) {
+    alert('Please enter your first name and select a department to continue.');
+    return;
+  }
+  loadProcesses();
+  goTo('p0', 'p1', true);
+}
+
+function buildSummary() {
+  captureData('p5');
+  document.getElementById('sum-dept').textContent = state.dept;
+  document.getElementById('sum-name').textContent =
+    `${state.fname} ${state.lname} · ${state.title} · ${state.date}`;
+
+  const fields = [
+    ['Department',             state.dept],
+    ['Team size',              state.teamSize ? state.teamSize + ' members' : ''],
+    ['Reporting to',           state.reportsTo],
+    ['Processes identified',   state.processes],
+    ['Top 3 time-consuming',   [state.top1, state.top2, state.top3].filter(Boolean).join('\n')],
+    ['Tools in use',           [state.tools, state.otherTools].filter(Boolean).join('\n')],
+    ['Automation level',       state.autoLevel + ' / 5'],
+    ['Process breakdown',      state.procTable],
+    ['Manual handoffs',        state.handoffs],
+    ['Weekly hrs on manual',   state.hrsManual],
+    ['Data entry % of time',   state.dataEntryPct],
+    ['Error / delay causes',   [state.errorCauses, state.otherErrors].filter(Boolean).join('\n')],
+    ['Operational risk',       state.risk],
+    ['Past incidents',         state.pastErrors],
+    ['Reporting status',       state.reportingManual],
+    ['Real-time visibility',   state.realtimeVis],
+    ['Priority #1 (urgent)',   state.qw1 + (state.qw1why ? '\n→ ' + state.qw1why : '')],
+    ['Priority #2',            state.qw2 + (state.qw2why ? '\n→ ' + state.qw2why : '')],
+    ['Priority #3',            state.qw3 + (state.qw3why ? '\n→ ' + state.qw3why : '')],
+    ['Longer-term goals',      state.longterm],
+    ['Success looks like',     state.success],
+    ['Freed-up time used for', state.freedTime],
+    ['Change readiness',       state.readiness + ' / 5'],
+    ['Digital literacy',       state.digLiteracy + ' / 5'],
+    ['Blockers',               state.blockers],
+    ['Support needed',         [state.supportNeeds, state.supportDetail].filter(Boolean).join('\n')],
+    ['Desired timeline',       state.timeline],
+    ['Additional comments',    state.comments],
+  ];
+
+  let html = '';
+  fields.forEach(([l, v]) => {
+    if (!v || v === '— / 5' || v === ' / 5' || !v.trim()) return;
+    html += `<div class="sum-row"><div class="sum-lbl">${l}</div><div class="sum-val">${v}</div></div>`;
+  });
+  document.getElementById('sum-body').innerHTML = html;
+  goTo('p5', 'p6', false);
+}
+
+function buildExportText() {
+  return `OUTSOURCE GLOBAL — AUTOMATION GAP ANALYSIS
+${'═'.repeat(50)}
+Department:      ${state.dept}
+HOD:             ${state.fname} ${state.lname} (${state.title})
+Email:           ${state.email}
+Team size:       ${state.teamSize} members
+Reports to:      ${state.reportsTo}
+Submission date: ${state.date}
+
+═══ PROCESS INVENTORY ═══
+Processes identified: ${state.processes}
+Top 3 most time-consuming:
+  1. ${state.top1}
+  2. ${state.top2}
+  3. ${state.top3}
+Tools in use: ${[state.tools, state.otherTools].filter(Boolean).join(', ')}
+
+═══ CURRENT AUTOMATION STATE ═══
+Overall automation level: ${state.autoLevel}/5
+Weekly hours lost to manual tasks: ${state.hrsManual}
+Data entry as % of team time: ${state.dataEntryPct}
+Process breakdown:
+${state.procTable}
+Manual handoffs/approvals: ${state.handoffs}
+Reporting status: ${state.reportingManual}
+Real-time visibility: ${state.realtimeVis}
+
+═══ GAP ANALYSIS ═══
+Error / delay causes: ${[state.errorCauses, state.otherErrors].filter(Boolean).join(', ')}
+Operational risk if unaddressed: ${state.risk}
+Past incidents: ${state.pastErrors}
+
+═══ AUTOMATION PRIORITIES ═══
+#1 (most urgent): ${state.qw1}
+   Reason: ${state.qw1why}
+#2: ${state.qw2}
+   Reason: ${state.qw2why}
+#3: ${state.qw3}
+   Reason: ${state.qw3why}
+Longer-term goals: ${state.longterm}
+Success looks like: ${state.success}
+Freed-up time used for: ${state.freedTime}
+
+═══ READINESS & CONSTRAINTS ═══
+Change readiness: ${state.readiness}/5
+Digital literacy: ${state.digLiteracy}/5
+Blockers: ${state.blockers}
+Support needed: ${[state.supportNeeds, state.supportDetail].filter(Boolean).join(', ')}
+Desired timeline: ${state.timeline}
+Additional comments: ${state.comments}
+
+${'─'.repeat(50)}
+Generated via Outsource Global Automation Gap Analysis Tool · Q2 2026`;
+}
+
+function doExport() {
+  navigator.clipboard.writeText(buildExportText())
+    .then(() => alert('Report copied to clipboard!'))
+    .catch(() => alert('Could not copy automatically — please select and copy the text manually.'));
+}
+
+function doAnalyse() {
+  const txt = buildExportText();
+  if (typeof sendPrompt === 'function') {
+    sendPrompt(`Here is the completed automation gap analysis for the ${state.dept} department at Outsource Global, submitted by ${state.fname} ${state.lname}:\n\n${txt}\n\nPlease: 1) Summarise the top 3 automation gaps with urgency scores, 2) Recommend specific tools or workflows for each priority, 3) Flag any risks or dependencies, and 4) Suggest a 90-day implementation roadmap.`);
+  } else {
+    alert('Claude integration not available in this context. Use the "Copy full report" button and paste into Claude.ai for analysis.');
+  }
+}
+</script>
+</body>
+</html>
